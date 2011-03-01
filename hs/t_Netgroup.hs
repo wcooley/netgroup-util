@@ -1,0 +1,74 @@
+{-
+ - t_Netgroup.hs - Tests for Netgroup module
+ -}
+
+import Netgroup
+import Test.HUnit
+
+barHost = "(bar,-,-)"
+fooHost = "(foo,-,-)"
+
+-- Some test data
+z = Netgroup { 	netgroup="zz"
+		, description = Nothing
+		, netgroupTriples = []
+		, memberNetgroups = []
+		}
+
+a = Netgroup { 	netgroup = "aa"
+		, description = Nothing
+		, netgroupTriples = []
+		, memberNetgroups = [b]
+		}
+
+b = Netgroup {	netgroup = "bb"
+		, description = Just "The 'bb' netgroup"
+		, netgroupTriples = [fooHost, barHost]
+		, memberNetgroups = []
+		}
+
+y = Netgroup {  netgroup = "yy"
+		, description = Nothing
+		, netgroupTriples = []
+		, memberNetgroups = [z,a]
+		}
+
+cyc = Netgroup { netgroup = "cyc"
+                , description = Just "Cyclical Netgroup"
+                , netgroupTriples = []
+                , memberNetgroups = [cyc]
+                }
+
+isflatgr_tests = TestLabel "isFlatNetgroup Tests" $ TestList [
+        TestCase (assertEqual "netgroup is flat"
+                    True
+                    (isFlatNetgroup b)
+                ),
+        TestCase (assertEqual "netgroup is nested"
+                    False
+                    (isFlatNetgroup y)
+                )
+    ]
+
+innetgr_tests = TestLabel "inNetgroup Tests" $ TestList [
+        TestCase (assertEqual "triple immediately contained in netgroup"
+                    True
+                    (barHost `inNetgroup` b)
+                ),
+        TestCase (assertEqual "triple not contained in netgroup"
+                    False
+                    (barHost `inNetgroup` z)
+                ),
+        TestCase (assertEqual "triple contained in first member netgroup"
+                    True
+                    (barHost `inNetgroup` a)
+                ),
+        TestCase (assertEqual "triple in tail of member netgroups"
+                    True
+                    (barHost `inNetgroup` y)
+                )
+    ]
+
+tests = TestList [isflatgr_tests, innetgr_tests]
+
+main = runTestTT tests
