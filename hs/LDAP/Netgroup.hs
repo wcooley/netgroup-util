@@ -7,6 +7,7 @@ module LDAP.Netgroup where
 import qualified Data.Map as Map
 import Data.Maybe
 import LDAP hiding (description)
+import LDAP.Util
 import Netgroup
 
 -- Local data
@@ -35,15 +36,6 @@ ldap_setup = do
 	ldapSimpleBind lconn "" ""
 	return lconn
 
-
-ldap_getattr :: String -> LDAPEntry -> Maybe [String]
-ldap_getattr attr entry = 
-            case filter_attr of
-                    [] -> Nothing
-                    _  -> Just (snd $ filter_attr !! 0)
-            where filter_attr =
-                    filter (\x -> fst x == attr)
-                        (leattrs entry)
 
 -- "cn" can by multivalued but should always exist
 netgroup_name      = head . fromJust . ldap_getattr "cn"
