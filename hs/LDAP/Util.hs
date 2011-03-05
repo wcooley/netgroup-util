@@ -7,8 +7,8 @@ module LDAP.Util where
 import LDAP
 
 
-ldap_getattr :: String -> LDAPEntry -> Maybe [String]
-ldap_getattr attr entry =
+ldapAttr :: String -> LDAPEntry -> Maybe [String]
+ldapAttr attr entry =
             case filter_attr of
                     [] -> Nothing
                     _  -> Just (snd $ filter_attr !! 0)
