@@ -2,11 +2,7 @@
  - LDAP.Netgroup module
  -}
 
-module LDAP.Netgroup
-( ldap_host
-, ldap_port
-, test_ldap_search
-) where
+module LDAP.Netgroup where
 
 import qualified Data.Map as Map
 import Data.Maybe
@@ -20,17 +16,6 @@ ldap_port :: LDAPInt
 ldap_port = 389
 
 basedn = Just "dc=pdx,dc=edu"
-
-test_ldap_search lobj = ldapSearch lobj
-			basedn
-			LdapScopeSubtree
-			(Just "cn=research")
-			(LDAPAttrList [ "cn"
-				, "description"
-				, "nisNetgroupTriple"
-				, "memberNisNetgroup"
-				])
-			False
 
 search_ldap_netgroup lobj =
                         ldapSearch lobj
@@ -61,13 +46,14 @@ ldap_getattr attr entry =
                         (leattrs entry)
 
 -- "cn" can by multivalued but should always exist
-getng_name      = head . fromJust . ldap_getattr "cn"
--- "description" might be multivalued; not sure
-getng_description x = Nothing -- maybe Nothing head (ldap_getattr "description" x)
-getng_triples = (fromMaybe []) . ldap_getattr "nisNetgroupTriple"
-getng_members entry = []
+netgroup_name      = head . fromJust . ldap_getattr "cn"
+-- "description" might be multivalued; not sure; seems to be missing from my
+-- installed schema??
+netgroup_description x = Nothing -- maybe Nothing head (ldap_getattr "description" x)
+netgroup_triples = (fromMaybe []) . ldap_getattr "nisNetgroupTriple"
+netgroup_members entry = []
 
-getng_members_ entry = ldap_getattr "memberNisNetgroup"
+netgroup_members_ entry = ldap_getattr "memberNisNetgroup"
 
 
 -- get_netgroups_from_ldap :: IO [LDAPEntry]
@@ -77,11 +63,13 @@ get_netgroups_from_ldap = do
                     return results
 
 build_netgroup_from_ldap entry =
-        Netgroup {  netgroup = getng_name entry, 
-                    description = getng_description entry,
-                    netgroupTriples = getng_triples entry,
-                    memberNetgroups = getng_members entry
+        (netgroup_name entry,
+        Netgroup {  netgroup        = netgroup_name entry,
+                    description     = netgroup_description entry,
+                    netgroupTriples = netgroup_triples entry,
+                    memberNetgroups = netgroup_members entry
                  }
+        )
 
 build_netgroups_from_ldap = do
     fmap (map build_netgroup_from_ldap) get_netgroups_from_ldap
