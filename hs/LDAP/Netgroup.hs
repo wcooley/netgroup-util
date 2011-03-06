@@ -37,12 +37,13 @@ ldap_setup = do
 	return lconn
 
 
--- "cn" can by multivalued but should always exist
-netgroup_name      = head . fromJust . ldapAttr "cn"
+-- Attribute extractors to go along with Netgroup records
+-- "cn" can be multivalued but should always exist
+netgroup_name      = ldapAttr1Yeah "cn"
 -- "description" might be multivalued; not sure; seems to be missing from my
 -- installed schema??
-netgroup_description x = Nothing -- maybe Nothing head (ldapAttr "description" x)
-netgroup_triples = (fromMaybe []) . ldapAttr "nisNetgroupTriple"
+netgroup_description = ldapAttr1 "description"
+netgroup_triples = ldapAttrYeah "nisNetgroupTriple"
 netgroup_members entry = []
 
 netgroup_members_ entry = ldapAttr "memberNisNetgroup"
@@ -55,13 +56,11 @@ get_netgroups_from_ldap = do
                     return results
 
 build_netgroup_from_ldap entry =
-        (netgroup_name entry,
         Netgroup {  netgroup        = netgroup_name entry,
                     description     = netgroup_description entry,
                     netgroupTriples = netgroup_triples entry,
                     memberNetgroups = netgroup_members entry
                  }
-        )
 
 build_netgroups_from_ldap = do
     fmap (map build_netgroup_from_ldap) get_netgroups_from_ldap
