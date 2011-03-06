@@ -2,14 +2,12 @@
  - Tests for LDAP.Netgroup
  -}
 
+import LDAP
 import LDAP.Netgroup
+import LDAP.Test_data
 import Netgroup
 import Test.HUnit
 
-module t_LDAP_Netgroup where
-
-
-{-
 test_ldap_search lobj = ldapSearch lobj
 			basedn
 			LdapScopeSubtree
@@ -20,6 +18,6 @@ test_ldap_search lobj = ldapSearch lobj
 				, "memberNisNetgroup"
 				])
 			False
--}
 
---main =
+tests = TestLabel "LDAP.Netgroup tests" $ TestList []
+main = runTestTT tests
