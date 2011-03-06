@@ -18,44 +18,40 @@ ldap_port = 389
 
 basedn = Just "dc=pdx,dc=edu"
 
+netgroup_attrs = LDAPAttrList [ "cn"
+				, "description"
+				, "nisNetgroupTriple"
+				, "memberNisNetgroup"
+				]
+
 search_ldap_netgroup lobj =
                         ldapSearch lobj
                         basedn
                         LdapScopeSubtree
                         (Just "(&(objectclass=nisNetgroup)(cn=b*))")
-			(LDAPAttrList [ "cn"
-				, "description"
-				, "nisNetgroupTriple"
-				, "memberNisNetgroup"
-				])
+                        netgroup_attrs
 			False
     
 
-ldap_setup = do
-	lconn <- ldapInit ldap_host ldap_port
-	ldapSimpleBind lconn "" ""
-	return lconn
+searchNetgroupsInLDAP = do
+                    lconn <- ldapAnonSetup
+                    results <- search_ldap_netgroup lconn
+                    return results
 
 
 -- Attribute extractors to go along with Netgroup records
 -- "cn" can be multivalued but should always exist
 netgroup_name      = ldapAttr1Yeah "cn"
+
 -- "description" might be multivalued; not sure; seems to be missing from my
 -- installed schema??
 netgroup_description = ldapAttr1 "description"
 netgroup_triples = ldapAttrYeah "nisNetgroupTriple"
-netgroup_members entry = []
 
+netgroup_members entry = []
 netgroup_members_ entry = ldapAttr "memberNisNetgroup"
 
-
--- get_netgroups_from_ldap :: IO [LDAPEntry]
-get_netgroups_from_ldap = do
-                    lconn <- ldap_setup
-                    results <- search_ldap_netgroup lconn
-                    return results
-
-build_netgroup_from_ldap entry =
+netgroupFromLDAP entry =
         Netgroup {  netgroup        = netgroup_name entry,
                     description     = netgroup_description entry,
                     netgroupTriples = netgroup_triples entry,
@@ -63,4 +59,4 @@ build_netgroup_from_ldap entry =
                  }
 
 build_netgroups_from_ldap = do
-    fmap (map build_netgroup_from_ldap) get_netgroups_from_ldap
+    fmap (map netgroupFromLDAP) searchNetgroupsInLDAP

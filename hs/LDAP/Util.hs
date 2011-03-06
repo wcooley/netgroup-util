@@ -32,3 +32,9 @@ ldapAttr1Yeah attr entry =  case res1 of
                                 [] -> ""
                                 otherwise -> head res1
             where res1 = ldapAttrYeah attr entry
+
+-- Quick & easy init & anonymous bind
+ldapAnonSetup = do
+	lconn <- ldapInit ldap_host ldap_port
+	ldapSimpleBind lconn "" ""
+	return lconn
