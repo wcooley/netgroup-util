@@ -9,11 +9,6 @@ barHost = "(bar,-,-)"
 fooHost = "(foo,-,-)"
 
 -- Some test data
-z = Netgroup { 	netgroup="zz"
-		, description = Nothing
-		, netgroupTriples = []
-		, memberNetgroups = []
-		}
 
 a = Netgroup { 	netgroup = "aa"
 		, description = Nothing
@@ -27,10 +22,16 @@ b = Netgroup {	netgroup = "bb"
 		, memberNetgroups = []
 		}
 
-y = Netgroup {  netgroup = "yy"
+c = Netgroup {  netgroup = "cc"
 		, description = Nothing
 		, netgroupTriples = []
-		, memberNetgroups = [z,a]
+		, memberNetgroups = [d,a]
+		}
+
+d = Netgroup { 	netgroup="dd"
+		, description = Nothing
+		, netgroupTriples = []
+		, memberNetgroups = []
 		}
 
 cyc = Netgroup { netgroup = "cyc"
@@ -46,7 +47,7 @@ isflatgr_tests = TestLabel "isFlatNetgroup Tests" $ TestList [
                 ),
         TestCase (assertEqual "netgroup is nested"
                     False
-                    (isFlatNetgroup y)
+                    (isFlatNetgroup c)
                 )
     ]
 
@@ -57,7 +58,7 @@ innetgr_tests = TestLabel "inNetgroup Tests" $ TestList [
                 ),
         TestCase (assertEqual "triple not contained in netgroup"
                     False
-                    (barHost `inNetgroup` z)
+                    (barHost `inNetgroup` d)
                 ),
         TestCase (assertEqual "triple contained in first member netgroup"
                     True
@@ -65,7 +66,7 @@ innetgr_tests = TestLabel "inNetgroup Tests" $ TestList [
                 ),
         TestCase (assertEqual "triple in tail of member netgroups"
                     True
-                    (barHost `inNetgroup` y)
+                    (barHost `inNetgroup` c)
                 )
     ]
 
