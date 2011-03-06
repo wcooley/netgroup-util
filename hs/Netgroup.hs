@@ -10,6 +10,7 @@ module Netgroup
 ) where
 
 import Data.Maybe (fromMaybe)
+import Text.Util
 
 type NetgroupTriple  = String
 
@@ -18,7 +19,6 @@ data Netgroup = Netgroup { netgroup         :: String
                          , netgroupTriples  :: [NetgroupTriple]
                          , memberNetgroups  :: [Netgroup]
                          }
-                        --deriving (Show, Eq)
                         deriving (Eq)
 
 instance Ord Netgroup where
@@ -26,17 +26,16 @@ instance Ord Netgroup where
 
 
 instance Show Netgroup where
-    show ng =    "\nNetgroup { netgroup=" ++ (quot (netgroup ng)) ++ ",\n"
-              ++ "    description=\"" ++ (fromMaybe "none" (description ng)) ++ "\",\n"
-              ++ "    triples=[" ++ (fmt_join (netgroupTriples ng)) ++ "],\n"
-              ++ "    members=[" ++ (unlines (map netgroup (memberNetgroups ng))) ++ "]\n"
-              ++ "}\n"
-        where   fmt_join [] = ""
-                fmt_join xs = foldl1 (\x y -> (quot x) ++ sep
-                                           ++ (pad 13 " ") ++ (quot y)) xs
-                pad n c = concat(replicate n c)
-                quot x = "\"" ++ x ++ "\""
-                sep = ",\n"
+    show ng = "\n" ++ join "\n" [
+              "Netgroup { netgroup=" ++ (dquot (netgroup ng))
+            , "    description=\"" ++ dquot (fromMaybe "" (description ng))
+            , "    triples=[" ++ (join sep (map dquot
+                                                (netgroupTriples ng))) ++ "]"
+            , "    members=[" ++ (join sep (map (dquot.netgroup)
+                                                (memberNetgroups ng))) ++ "]"
+            , "}\n"
+            ]
+            where  sep = ",\n" ++ (" " `x` 13)
 
 
 isFlatNetgroup :: Netgroup -> Bool
