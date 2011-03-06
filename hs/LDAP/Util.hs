@@ -7,6 +7,10 @@ module LDAP.Util where
 import Data.Maybe (fromMaybe)
 import LDAP
 
+ldap_host = "localhost"
+
+ldap_port :: LDAPInt
+ldap_port = 389
 
 -- Pick out a list values for an attribute in an LDAPEntry
 ldapAttr :: String -> LDAPEntry -> Maybe [String]

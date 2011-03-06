@@ -11,10 +11,6 @@ import LDAP.Util
 import Netgroup
 
 -- Local data
-ldap_host = "localhost"
-
-ldap_port :: LDAPInt
-ldap_port = 389
 
 basedn = Just "dc=pdx,dc=edu"
 
