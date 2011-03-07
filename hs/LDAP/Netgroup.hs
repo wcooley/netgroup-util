@@ -29,10 +29,9 @@ search_ldap_netgroup lobj =
 			False
     
 
+searchNetgroupsInLDAP :: IO [LDAPEntry]
 searchNetgroupsInLDAP = do
-                    lconn <- ldapAnonSetup
-                    results <- search_ldap_netgroup lconn
-                    return results
+                    ldapAnonSetup >>= search_ldap_netgroup
 
 -- netgroupFromLDAP :: IO (Map.Map String LDAPEntry) -> IO Netgroup
 netgroupFromLDAP ngmap entry =
@@ -70,7 +69,7 @@ lookupNetgroupMapYeah :: String -> IO (Map.Map String LDAPEntry)
 lookupNetgroupMapYeah ngname ngmap =
                 fmap fromJust (lookupNetgroupMap ngname ngmap)
 
-mapFromNetgroup :: (IO [LDAPEntry]) -> (IO (Map.Map String LDAPEntry))
+mapFromNetgroup :: IO [LDAPEntry] -> IO (Map.Map String LDAPEntry)
 mapFromNetgroup entries =
     fmap Map.fromList (fmap (map ( \ng -> (netgroup_name ng, ng))) entries)
 
