@@ -35,7 +35,6 @@ searchNetgroupsInLDAP = do
                     ldapAnonSetup >>= search_ldap_netgroup
 
 -- netgroupFromLDAP :: IO (Map.Map String LDAPEntry) -> IO LDAPEntry -> IO Netgroup
--- netgroupFromLDAP lngmap entry =
 netgroupFromLDAP entry =
             Netgroup {
                     netgroup        = netgroup_name entry,
@@ -47,15 +46,9 @@ netgroupFromLDAP entry =
 -- Attribute extractors to go along with Netgroup records
 -- "cn" can be multivalued but should always exist
 netgroup_name      = ldapAttr1Yeah "cn"
-
--- "description" might be multivalued; not sure; seems to be missing from my
--- installed schema??
 netgroup_description = ldapAttr1 "description"
 netgroup_triples = ldapAttrYeah "nisNetgroupTriple"
 netgroup_members = ldapAttrYeah "memberNisNetgroup"
-
-
--- netgroup_members entry lngmap = namesToNetgroups (ldapAttrYeah "memberNisNetgroup" entry) lngmap
 
 -- Given a list of netgroup names, produce a list of Netgroups. Note we also
 -- filter for Nothing, so the resulting list may be shorter
@@ -102,18 +95,6 @@ ldapNetgroupMap = ldapNetgroupMapFromLDAP searchNetgroupsInLDAP
 build_netgroups_from_ldap =
     do  m <- ldapNetgroupMap
         return $ map netgroupFromLDAP (Map.elems m)
-
-netgroupEdgesByMember :: Netgroup -> [String]
-netgroupEdgesByMember ng = [ " " `x` 12 ++ ngname
-                            ++ " -> " ++ (map (subst '-' '_') m) ++ ";"
-                            | m <- members ]
-    where   ngname = map (subst '-' '_') $ netgroup ng
-            members = memberNetgroups ng
-
-subst x y z = if z /= x then z else y
-
-netgroupEdges :: [Netgroup] -> [String]
-netgroupEdges ngs = concat $ map netgroupEdgesByMember ngs
 
 netgroupGraph =
     do  ngs <- build_netgroups_from_ldap

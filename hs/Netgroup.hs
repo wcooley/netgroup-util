@@ -6,6 +6,8 @@ module Netgroup
 ( Netgroup(..)
 , isFlatNetgroup
 , flattenNetgroup
+, netgroupEdges
+, netgroupEdgesByMember
 --, inNetgroup
 ) where
 
@@ -59,3 +61,15 @@ hasCycle = undefined
 -- hasCycle ng seen
 --     | ng `elem` (memberNetgroups ng)    = True
 --     | otherwise = any (
+
+-- Create a GraphViz edge from an individual Netgroup
+netgroupEdgesByMember :: Netgroup -> [String]
+netgroupEdgesByMember ng = [ " " `x` 12 ++ ngname
+                            ++ " -> " ++ (subst '-' '_' ms) ++ ";"
+                            | ms <- members ]
+    where   ngname = subst '-' '_' $ netgroup ng
+            members = memberNetgroups ng
+
+-- Create big list of GraphViz edges from a list of Netgroups
+netgroupEdges :: [Netgroup] -> [String]
+netgroupEdges ngs = concat $ map netgroupEdgesByMember ngs
