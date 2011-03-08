@@ -6,7 +6,7 @@ module Netgroup
 ( Netgroup(..)
 , isFlatNetgroup
 , flattenNetgroup
-, inNetgroup
+--, inNetgroup
 ) where
 
 import Data.Maybe (fromMaybe)
@@ -14,10 +14,12 @@ import Text.Util
 
 type NetgroupTriple  = String
 
+type NetgroupForest = [Netgroup]
+
 data Netgroup = Netgroup { netgroup         :: String
                          , description      :: Maybe String
                          , netgroupTriples  :: [NetgroupTriple]
-                         , memberNetgroups  :: [Netgroup]
+                         , memberNetgroups  :: [String]
                          }
                         deriving (Eq)
 
@@ -31,7 +33,7 @@ instance Show Netgroup where
             , "    description=\"" ++ dquot (fromMaybe "" (description ng))
             , "    triples=[" ++ (join sep (map dquot
                                                 (netgroupTriples ng))) ++ "]"
-            , "    members=[" ++ (join sep (map (dquot.netgroup)
+            , "    members=[" ++ (join sep (map dquot
                                                 (memberNetgroups ng))) ++ "]"
             , "}\n"
             ]
@@ -44,10 +46,13 @@ isFlatNetgroup ng = ( memberNetgroups ng ) == []
 flattenNetgroup :: Netgroup -> Netgroup
 flattenNetgroup ng = undefined
 
-inNetgroup :: NetgroupTriple -> Netgroup -> Bool
-inNetgroup triple ng
-        | triple `elem` (netgroupTriples ng)    = True
+--inNetgroup :: NetgroupTriple -> Netgroup -> NetgroupForest -> Bool
+{-
+inNetgroup triple ng ngf
+        | triple `elem` (netgroupTriples ng) = True
         | otherwise = any (inNetgroup triple) (memberNetgroups ng)
+-}
+
 
 hasCycle :: Netgroup -> [Netgroup] -> Bool
 hasCycle = undefined
