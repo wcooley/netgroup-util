@@ -13,7 +13,6 @@ test_ldap_search lobj = ldapSearch lobj
 			LdapScopeSubtree
 			(Just "cn=research")
 			(LDAPAttrList [ "cn"
-				, "description"
 				, "nisNetgroupTriple"
 				, "memberNisNetgroup"
 				])

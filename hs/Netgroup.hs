@@ -19,7 +19,6 @@ type NetgroupTriple  = String
 type NetgroupForest = [Netgroup]
 
 data Netgroup = Netgroup { netgroup         :: String
-                         , description      :: Maybe String
                          , netgroupTriples  :: [NetgroupTriple]
                          , memberNetgroups  :: [String]
                          }
@@ -32,7 +31,6 @@ instance Ord Netgroup where
 instance Show Netgroup where
     show ng = "\n" ++ join "\n" [
               "Netgroup { netgroup=" ++ (dquot (netgroup ng))
-            , "    description=\"" ++ dquot (fromMaybe "" (description ng))
             , "    triples=[" ++ (join sep (map dquot
                                                 (netgroupTriples ng))) ++ "]"
             , "    members=[" ++ (join sep (map dquot

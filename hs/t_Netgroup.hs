@@ -11,31 +11,26 @@ fooHost = "(foo,-,-)"
 -- Some test data
 
 a = Netgroup { 	netgroup = "aa"
-		, description = Nothing
 		, netgroupTriples = []
 		, memberNetgroups = ["bb"]
 		}
 
 b = Netgroup {	netgroup = "bb"
-		, description = Just "The 'bb' netgroup"
 		, netgroupTriples = [fooHost, barHost]
 		, memberNetgroups = []
 		}
 
 c = Netgroup {  netgroup = "cc"
-		, description = Nothing
 		, netgroupTriples = []
 		, memberNetgroups = ["dd","aa"]
 		}
 
 d = Netgroup { 	netgroup="dd"
-		, description = Nothing
 		, netgroupTriples = []
 		, memberNetgroups = []
 		}
 
 cyc = Netgroup { netgroup = "cyc"
-                , description = Just "Cyclical Netgroup"
                 , netgroupTriples = []
                 , memberNetgroups = ["cyc"]
                 }

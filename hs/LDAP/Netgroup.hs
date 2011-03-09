@@ -6,7 +6,7 @@ module LDAP.Netgroup where
 
 import qualified Data.Map as Map
 import Data.Maybe
-import LDAP hiding (description)
+import LDAP
 import LDAP.Util
 import Netgroup
 import Text.Util
@@ -16,7 +16,6 @@ import Text.Util
 basedn = Just "dc=pdx,dc=edu"
 
 netgroup_attrs = LDAPAttrList [ "cn"
-				, "description"
 				, "nisNetgroupTriple"
 				, "memberNisNetgroup"
 				]
@@ -40,7 +39,6 @@ searchNetgroupsInLDAP = do
 netgroupFromLDAP entry =
             Netgroup {
                     netgroup        = netgroup_name entry,
-                    description     = netgroup_description entry,
                     netgroupTriples = netgroup_triples entry,
                     memberNetgroups = netgroup_members entry
                  }
@@ -48,7 +46,6 @@ netgroupFromLDAP entry =
 -- Attribute extractors to go along with Netgroup records
 -- "cn" can be multivalued but should always exist
 netgroup_name      = ldapAttr1Yeah "cn"
-netgroup_description = ldapAttr1 "description"
 netgroup_triples = ldapAttrYeah "nisNetgroupTriple"
 netgroup_members = ldapAttrYeah "memberNisNetgroup"
 
