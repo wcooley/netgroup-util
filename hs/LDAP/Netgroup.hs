@@ -21,11 +21,13 @@ netgroup_attrs = LDAPAttrList [ "cn"
 				, "memberNisNetgroup"
 				]
 
+netgroup_filter = (Just "(&(objectclass=nisNetgroup)(cn=*))")
+
 search_ldap_netgroup lobj =
                         ldapSearch lobj
                         basedn
                         LdapScopeSubtree
-                        (Just "(&(objectclass=nisNetgroup)(cn=*))")
+                        netgroup_filter
                         netgroup_attrs
 			False
 
@@ -92,22 +94,18 @@ ldapNetgroupMapFromLDAP entries =
 ldapNetgroupMap :: IO (Map.Map String LDAPEntry)
 ldapNetgroupMap = ldapNetgroupMapFromLDAP searchNetgroupsInLDAP
 
+build_netgroups_from_ldap :: IO [Netgroup]
 build_netgroups_from_ldap =
     do  m <- ldapNetgroupMap
         return $ map netgroupFromLDAP (Map.elems m)
 
+netgroupGraph :: IO String
 netgroupGraph =
     do  ngs <- build_netgroups_from_ldap
         return (unlines $ netgroupEdges ngs)
 
+genGraph :: IO ()
 genGraph =
     do  putStrLn "digraph netgroups {"
         netgroupGraph >>= putStr
         putStrLn "}"
-{-
-build_netgroups_from_ldap = do
-    fmap (map netgroupFromLDAP lngmap) entries
-    where
-        entries = searchNetgroupsInLDAP
-        lngmap = fmap ldapNetgroupMapFromLDAP entries
--}
