@@ -12,6 +12,7 @@ module Netgroup
 --, inNetgroup
 )-} where
 
+import Control.Applicative
 import Data.Maybe (fromMaybe)
 import Data.String.Utils
 import Data.Tuple.Utils
@@ -96,11 +97,14 @@ netgroupEdgesByHost ng = [ gvedge (netgroup ng) hs
 
 netgroupEdgesByUser :: Netgroup -> [String]
 netgroupEdgesByUser ng = [ gvedge (netgroup ng) us
-                        | us <- usersImmedInNetgroup ng ]
+                            | us <- usersImmedInNetgroup ng ]
 
 -- Create big list of GraphViz edges from a list of Netgroups
 netgroupEdges :: [Netgroup] -> [String]
-netgroupEdges ngs = concat $ map netgroupEdgesByMember ngs
+netgroupEdges ngs = concat $ ([ netgroupEdgesByMember
+                                , netgroupEdgesByHost
+                                , netgroupEdgesByUser]
+                            <*> ngs)
 
 -- Parse String triple into (String,String,String)
 parseNetgroupTriple :: String -> (String,String,String)
