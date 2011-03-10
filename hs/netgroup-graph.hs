@@ -3,5 +3,9 @@
  - CS 457
  - Winter 2011
  -
- - ldap-netgroup-graph - Generate GraphViz dotfile from LDAP netgroups.
+ - netgroup-graph - Generate GraphViz dotfile from LDAP netgroups.
  -}
+
+import LDAP.Netgroup
+
+main = do genGraph
