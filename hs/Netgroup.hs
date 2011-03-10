@@ -75,8 +75,42 @@ filter_user = filter ( \(_,u,_) -> real_member u)
 filter_host :: [NetgroupTriple] -> [NetgroupTriple]
 filter_host = filter ( \(h,_,_) -> real_member h)
 
+indent = " " `x` 4
+
+gvAttrs :: [String] -> String
+gvAttrs attrs = if (length attrs > 0)
+                then " [" ++ (join "," attrs) ++ "];"
+                else ";"
+
 -- Format a GraphViz edge
-gvedge n0 n1 = " " `x` 4 ++ (dquot n0) ++ " -> " ++ (dquot n1) ++ ";"
+gvEdge :: String -> String -> [String] -> String
+gvEdge from to attrs = indent ++ (dquot from) ++ " -> " ++ (dquot to) ++
+                            (gvAttrs attrs)
+
+-- Format a GraphViz node
+gvNode :: String -> [String] -> String
+gvNode name attrs = indent ++ (dquot name) ++ (gvAttrs attrs)
+
+-- Specialized nodes
+gvUser :: String -> String
+gvUser name = gvNode name ["shape=triangle", "style=dotted", "layer=\"user\""]
+
+gvHost :: String -> String
+gvHost name = gvNode name  ["shape=oval", "style=dashed", "layer=\"host\""]
+
+gvNetgroup :: String -> String
+gvNetgroup name = gvNode name ["shape=rectangle", "style=solid", "layer=\"netgroup\""]
+
+-- And a graph itself
+-- Note that attributes for a graph are different than for nodes & edges
+gvGraph :: String -> [String] -> [String] -> [String] -> String
+gvGraph name nodes edges attrs =
+    unlines $
+        [ "digraph " ++ name ++ " {" ]
+            ++ (map (\a -> indent ++ a ++ ";") attrs)
+            ++ nodes
+            ++ edges
+            ++ ["}"]
 
 -- Users in the immediate netgroup, not recursing into member netgroups
 usersImmedInNetgroup :: Netgroup -> [String]
@@ -88,16 +122,22 @@ hostsImmedInNetgroup ng = map fst3 $ filter_host (netgroupTriples ng)
 
 -- Create a GraphViz edge from an individual Netgroup
 netgroupEdgesByMember :: Netgroup -> [String]
-netgroupEdgesByMember ng = [ gvedge (netgroup ng) ms
+netgroupEdgesByMember ng = [ gvEdge (netgroup ng) ms ["layer=\"netgroup\""]
                             | ms <- memberNetgroups ng ]
+netgroupNodesByMember :: Netgroup -> [String]
+netgroupNodesByMember ng = map gvNetgroup (memberNetgroups ng)
 
 netgroupEdgesByHost :: Netgroup -> [String]
-netgroupEdgesByHost ng = [ gvedge (netgroup ng) hs
+netgroupEdgesByHost ng = [ gvEdge (netgroup ng) hs ["layer=\"host\""]
                             | hs <- hostsImmedInNetgroup ng ]
+netgroupNodesByHost :: Netgroup -> [String]
+netgroupNodesByHost ng = map gvHost (hostsImmedInNetgroup ng)
 
 netgroupEdgesByUser :: Netgroup -> [String]
-netgroupEdgesByUser ng = [ gvedge (netgroup ng) us
+netgroupEdgesByUser ng = [ gvEdge (netgroup ng) us ["layer=\"user\""]
                             | us <- usersImmedInNetgroup ng ]
+netgroupNodesByUser :: Netgroup -> [String]
+netgroupNodesByUser ng = map gvUser (usersImmedInNetgroup ng)
 
 -- Create big list of GraphViz edges from a list of Netgroups
 netgroupEdges :: [Netgroup] -> [String]
@@ -105,6 +145,18 @@ netgroupEdges ngs = concat $ ([ netgroupEdgesByMember
                                 , netgroupEdgesByHost
                                 , netgroupEdgesByUser]
                             <*> ngs)
+
+netgroupNodes :: [Netgroup] -> [String]
+netgroupNodes ngs = concat $ ([ netgroupNodesByMember
+                                , netgroupNodesByHost
+                                , netgroupNodesByUser]
+                            <*> ngs)
+
+netgroupGraph :: [Netgroup] -> String
+netgroupGraph ngs = gvGraph "netgroups"
+                    (netgroupEdges ngs) (netgroupNodes ngs)
+                    [   "layers=\"user\"",
+                        "rankdir=LR" ]
 
 -- Parse String triple into (String,String,String)
 parseNetgroupTriple :: String -> (String,String,String)

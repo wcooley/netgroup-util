@@ -96,13 +96,11 @@ build_netgroups_from_ldap =
     do  m <- ldapNetgroupMap
         return $ map netgroupFromLDAP (Map.elems m)
 
-netgroupGraph :: IO String
-netgroupGraph =
+netgroupGraphIO :: IO String
+netgroupGraphIO =
     do  ngs <- build_netgroups_from_ldap
-        return (unlines $ netgroupEdges ngs)
+        return $ netgroupGraph ngs
 
 genGraph :: IO ()
 genGraph =
-    do  putStrLn "digraph netgroups {"
-        netgroupGraph >>= putStr
-        putStrLn "}"
+    do  netgroupGraphIO >>= putStr
