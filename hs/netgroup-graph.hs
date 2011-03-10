@@ -7,5 +7,7 @@
  -}
 
 import LDAP.Netgroup
+import Netgroup
 
-main = do genGraph
+main = do   ngs <- build_netgroups_from_ldap
+            putStr $ netgroupGraph ngs
