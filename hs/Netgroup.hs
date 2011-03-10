@@ -12,7 +12,7 @@ module Netgroup
 ) where
 
 import Data.Maybe (fromMaybe)
-import Data.String.Utils (join)
+import Data.String.Utils (join,replace)
 import Text.Util
 
 type NetgroupTriple  = String
@@ -64,9 +64,9 @@ hasCycle = undefined
 -- Create a GraphViz edge from an individual Netgroup
 netgroupEdgesByMember :: Netgroup -> [String]
 netgroupEdgesByMember ng = [ " " `x` 12 ++ ngname
-                            ++ " -> " ++ (subst '-' '_' ms) ++ ";"
+                            ++ " -> " ++ (replace "-" "_" ms) ++ ";"
                             | ms <- members ]
-    where   ngname = subst '-' '_' $ netgroup ng
+    where   ngname = replace "-" "_" $ netgroup ng
             members = memberNetgroups ng
 
 -- Create big list of GraphViz edges from a list of Netgroups
