@@ -1,4 +1,6 @@
 .*.swp
-*.png
-*.dot
 .DS_Store
+*.dot
+*.hi
+*.o
+*.png
