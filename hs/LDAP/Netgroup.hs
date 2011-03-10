@@ -46,7 +46,7 @@ netgroupFromLDAP entry =
 -- Attribute extractors to go along with Netgroup records
 -- "cn" can be multivalued but should always exist
 netgroup_name      = ldapAttr1Yeah "cn"
-netgroup_triples = ldapAttrYeah "nisNetgroupTriple"
+netgroup_triples = (map parseNetgroupTriple) . ldapAttrYeah "nisNetgroupTriple"
 netgroup_members = ldapAttrYeah "memberNisNetgroup"
 
 -- Given a list of netgroup names, produce a list of Netgroups. Note we also

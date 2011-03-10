@@ -16,7 +16,7 @@ import Data.Maybe (fromMaybe)
 import Data.String.Utils
 import Text.Util
 
-type NetgroupTriple  = String
+type NetgroupTriple = (String,String,String)
 
 type NetgroupForest = [Netgroup]
 
@@ -33,11 +33,11 @@ instance Ord Netgroup where
 instance Show Netgroup where
     show ng = "\n" ++ join "\n" [
               "Netgroup { netgroup=" ++ (dquot (netgroup ng))
-            , "    triples=[" ++ (join sep (map dquot
+            , "    triples=[" ++ (join sep (map show
                                                 (netgroupTriples ng))) ++ "]"
             , "    members=[" ++ (join sep (map dquot
                                                 (memberNetgroups ng))) ++ "]"
-            , "}\n"
+            , "}"
             ]
             where  sep = ",\n" ++ (" " `x` 13)
 
@@ -75,7 +75,7 @@ netgroupEdges :: [Netgroup] -> [String]
 netgroupEdges ngs = concat $ map netgroupEdgesByMember ngs
 
 -- Parse String triple into (String,String,String)
-parseNetgroupTriple :: NetgroupTriple -> (String,String,String)
+parseNetgroupTriple :: String -> (String,String,String)
 parseNetgroupTriple tpl = (\(x:y:z:[]) -> (x,y,z)) $ split "," $ unparen tpl
         where unparen str = if ( startswith "(" str ) && ( endswith ")" str )
                             then init $ tail str

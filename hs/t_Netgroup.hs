@@ -5,8 +5,8 @@
 import Netgroup
 import Test.HUnit
 
-barHost = "(bar,-,-)"
-fooHost = "(foo,-,-)"
+barHost = ("bar","-","-")
+fooHost = ("foo","-","-")
 
 -- Some test data
 
