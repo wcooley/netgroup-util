@@ -3,17 +3,18 @@
  -}
 
 module Netgroup
-( Netgroup(..)
+{-( Netgroup(..)
 , isFlatNetgroup
 , flattenNetgroup
 , netgroupEdges
 , netgroupEdgesByMember
 , parseNetgroupTriple
 --, inNetgroup
-) where
+)-} where
 
 import Data.Maybe (fromMaybe)
 import Data.String.Utils
+import Data.Tuple.Utils
 import Text.Util
 
 type NetgroupTriple = (String,String,String)
@@ -62,13 +63,40 @@ hasCycle = undefined
 --     | ng `elem` (memberNetgroups ng)    = True
 --     | otherwise = any (
 
+-- Netgroup triples can have either "-" or the empty string as a placeholder
+-- (with different meanings)
+real_member :: String -> Bool
+real_member mem = mem /= "" && mem /= "-"
+
+filter_user :: [NetgroupTriple] -> [NetgroupTriple]
+filter_user = filter ( \(_,u,_) -> real_member u)
+
+filter_host :: [NetgroupTriple] -> [NetgroupTriple]
+filter_host = filter ( \(h,_,_) -> real_member h)
+
+-- Format a GraphViz edge
+gvedge n0 n1 = " " `x` 4 ++ (dquot n0) ++ " -> " ++ (dquot n1) ++ ";"
+
+-- Users in the immediate netgroup, not recursing into member netgroups
+usersImmedInNetgroup :: Netgroup -> [String]
+usersImmedInNetgroup ng = map snd3 $ filter_user (netgroupTriples ng)
+
+-- Hosts likewise
+hostsImmedInNetgroup :: Netgroup -> [String]
+hostsImmedInNetgroup ng = map fst3 $ filter_host (netgroupTriples ng)
+
 -- Create a GraphViz edge from an individual Netgroup
 netgroupEdgesByMember :: Netgroup -> [String]
-netgroupEdgesByMember ng = [ " " `x` 12 ++ ngname
-                            ++ " -> " ++ (replace "-" "_" ms) ++ ";"
-                            | ms <- members ]
-    where   ngname = replace "-" "_" $ netgroup ng
-            members = memberNetgroups ng
+netgroupEdgesByMember ng = [ gvedge (netgroup ng) ms
+                            | ms <- memberNetgroups ng ]
+
+netgroupEdgesByHost :: Netgroup -> [String]
+netgroupEdgesByHost ng = [ gvedge (netgroup ng) hs
+                            | hs <- hostsImmedInNetgroup ng ]
+
+netgroupEdgesByUser :: Netgroup -> [String]
+netgroupEdgesByUser ng = [ gvedge (netgroup ng) us
+                        | us <- usersImmedInNetgroup ng ]
 
 -- Create big list of GraphViz edges from a list of Netgroups
 netgroupEdges :: [Netgroup] -> [String]

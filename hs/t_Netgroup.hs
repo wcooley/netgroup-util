@@ -7,6 +7,8 @@ import Test.HUnit
 
 barHost = ("bar","-","-")
 fooHost = ("foo","-","-")
+bazUser = ("-", "baz", "")
+bamUser = ("-", "bam", "-")
 
 -- Some test data
 
@@ -21,12 +23,12 @@ b = Netgroup {	netgroup = "bb"
 		}
 
 c = Netgroup {  netgroup = "cc"
-		, netgroupTriples = []
+		, netgroupTriples = [bamUser, bazUser]
 		, memberNetgroups = ["dd","aa"]
 		}
 
 d = Netgroup { 	netgroup="dd"
-		, netgroupTriples = []
+		, netgroupTriples = [fooHost, barHost, bamUser, bazUser]
 		, memberNetgroups = []
 		}
 
