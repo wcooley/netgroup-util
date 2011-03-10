@@ -5,14 +5,6 @@
 import Test.HUnit
 import Text.Util
 
-join_tests = TestLabel "Text.Util.join tests" $
-            TestList [
-                TestCase (assertEqual "join \":\" words"
-                            "a:b:c"
-                            (join ":" ["a","b","c"])
-                        )
-            ]
-
 x_tests = TestLabel "Text.Util.x tests" $
             TestList [
                 TestCase (assertEqual "x: \"*\" `x` 4"
@@ -46,8 +38,7 @@ subst_tests = TestLabel "Tests for subst" $
             ]
 
 tests = TestLabel "Text.Util tests" $
-            TestList [ join_tests
-                    , x_tests
+            TestList [ x_tests
                     , quot_tests
                     , subst_tests
             ]

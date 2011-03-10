@@ -12,6 +12,7 @@ module Netgroup
 ) where
 
 import Data.Maybe (fromMaybe)
+import Data.String.Utils (join)
 import Text.Util
 
 type NetgroupTriple  = String
