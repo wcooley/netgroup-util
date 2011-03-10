@@ -68,6 +68,25 @@ innetgr_tests = TestLabel "inNetgroup Tests" $ TestList [
     ]
 -}
 
-tests = TestList [isflatgr_tests, innetgr_tests]
+parsetripl_tests = TestLabel "parseNetgroupTriple tests" $ TestList [
+        TestCase (assertEqual "null triple"
+                    ("","","")
+                    (parseNetgroupTriple "(,,)")
+                )
+        , TestCase (assertEqual "dashed triple"
+                    ("-","-","-")
+                    (parseNetgroupTriple "(-,-,-)")
+                )
+        , TestCase (assertEqual "host-triple"
+                    ("odin.pdx.edu", "-", "")
+                    (parseNetgroupTriple "(odin.pdx.edu,-,)")
+                )
+        , TestCase (assertEqual "user-triple"
+                    ("-", "wcooley", "")
+                    (parseNetgroupTriple "(-,wcooley,)")
+                )
+    ]
+
+tests = TestList [isflatgr_tests, innetgr_tests, parsetripl_tests]
 
 main = runTestTT tests

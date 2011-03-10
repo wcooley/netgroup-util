@@ -8,11 +8,12 @@ module Netgroup
 , flattenNetgroup
 , netgroupEdges
 , netgroupEdgesByMember
+, parseNetgroupTriple
 --, inNetgroup
 ) where
 
 import Data.Maybe (fromMaybe)
-import Data.String.Utils (join,replace)
+import Data.String.Utils
 import Text.Util
 
 type NetgroupTriple  = String
@@ -72,3 +73,10 @@ netgroupEdgesByMember ng = [ " " `x` 12 ++ ngname
 -- Create big list of GraphViz edges from a list of Netgroups
 netgroupEdges :: [Netgroup] -> [String]
 netgroupEdges ngs = concat $ map netgroupEdgesByMember ngs
+
+-- Parse String triple into (String,String,String)
+parseNetgroupTriple :: NetgroupTriple -> (String,String,String)
+parseNetgroupTriple tpl = (\(x:y:z:[]) -> (x,y,z)) $ split "," $ unparen tpl
+        where unparen str = if ( startswith "(" str ) && ( endswith ")" str )
+                            then init $ tail str
+                            else error "malformed triple: " ++ (squot str)
