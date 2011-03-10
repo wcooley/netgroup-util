@@ -35,7 +35,7 @@ searchNetgroupsInLDAP :: IO [LDAPEntry]
 searchNetgroupsInLDAP = do
                     ldapAnonSetup >>= search_ldap_netgroup
 
--- netgroupFromLDAP :: IO (Map.Map String LDAPEntry) -> IO LDAPEntry -> IO Netgroup
+netgroupFromLDAP :: LDAPEntry -> Netgroup
 netgroupFromLDAP entry =
             Netgroup {
                     netgroup        = netgroup_name entry,
