@@ -11,8 +11,8 @@ from pprint import pprint, pformat
 import sys
 
 ldap_conn = {
-        uri = 'ldaps://ldap.example.com',
-        basedn = 'dc=example,dc=com',
+    'uri':      'ldaps://ldap.example.com',
+    'basedn':   'dc=example,dc=com',
 }
 
 class Netgroup(object):
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     print "# Generated file - DO NOT EDIT"
     print "#\n# User-access netgroups\n#"
-    for ng in userngs: print ng, "\n"
+    for ng in userngs: print str(ng)
     print "#\n# Host netgroups\n#"
-    for ng in hostngs: print ng, "\n"
+    for ng in hostngs: print str(ng)
     print
